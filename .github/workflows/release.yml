@@ -1,0 +1,36 @@
+---
+name: Release
+
+'on':
+  push:
+    tags:
+      - 'v*'
+
+defaults:
+  run:
+    working-directory: ludus_asr_presets
+
+jobs:
+  release:
+    name: Import role into Ansible Galaxy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the role
+        uses: actions/checkout@v4
+        with:
+          path: ludus_asr_presets
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install Ansible
+        run: pip3 install ansible-core
+
+      - name: Import tagged role into Galaxy
+        env:
+          GALAXY_API_KEY: ${{ secrets.GALAXY_API_KEY }}
+        run: >-
+          ansible-galaxy role import --api-key "$GALAXY_API_KEY"
+          "${GITHUB_REPOSITORY%%/*}" "${GITHUB_REPOSITORY##*/}"

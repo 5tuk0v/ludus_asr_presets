@@ -1,0 +1,6 @@
+---
+- name: Syntax-check ludus_asr_presets
+  hosts: all
+  gather_facts: false
+  roles:
+    - role: ludus_asr_presets

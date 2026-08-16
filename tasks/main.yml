@@ -1,0 +1,14 @@
+---
+- name: Validate ASR preset inputs and host support
+  ansible.builtin.include_tasks: validate.yml
+
+- name: Select ASR preset data
+  ansible.builtin.set_fact:
+    ludus_asr_presets_selected: >-
+      {{ ludus_asr_presets_catalog[ludus_asr_presets_preset] }}
+
+- name: Configure role-owned ASR policy
+  ansible.builtin.include_tasks: configure.yml
+
+- name: Verify effective ASR state
+  ansible.builtin.include_tasks: verify.yml

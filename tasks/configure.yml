@@ -1,0 +1,227 @@
+---
+- name: Apply role-owned ASR policy values
+  ansible.windows.win_powershell:
+    parameters:
+      CatalogVersion: "{{ ludus_asr_presets_catalog_version }}"
+      DesiredRulesJson: "{{ ludus_asr_presets_selected.rules | to_json }}"
+      Mode: "{{ ludus_asr_presets_mode }}"
+      Preset: "{{ ludus_asr_presets_preset }}"
+    script: |
+      [CmdletBinding()]
+      param(
+          [Parameter(Mandatory = $true)]
+          [string] $CatalogVersion,
+
+          [Parameter(Mandatory = $true)]
+          [string] $DesiredRulesJson,
+
+          [Parameter(Mandatory = $true)]
+          [ValidateSet('source', 'audit', 'block', 'native')]
+          [string] $Mode,
+
+          [Parameter(Mandatory = $true)]
+          [string] $Preset
+      )
+
+      $ErrorActionPreference = 'Stop'
+      $policySubkey = 'SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules'
+      $stateSubkey = 'SOFTWARE\Ludus\Roles\ludus_asr_presets'
+      $registryBaseKey = [Microsoft.Win32.RegistryKey]::OpenBaseKey(
+          [Microsoft.Win32.RegistryHive]::LocalMachine,
+          [Microsoft.Win32.RegistryView]::Registry64
+      )
+      $changed = $false
+      $changeReasons = [System.Collections.Generic.List[string]]::new()
+
+      function Test-RegistrySubkey {
+          param(
+              [Parameter(Mandatory = $true)]
+              [string] $Subkey
+          )
+
+          $key = $registryBaseKey.OpenSubKey($Subkey, $false)
+          if ($null -eq $key) {
+              return $false
+          }
+          $key.Dispose()
+          return $true
+      }
+
+      function Get-RegistryValueOrNull {
+          param(
+              [Parameter(Mandatory = $true)]
+              [string] $Subkey,
+
+              [Parameter(Mandatory = $true)]
+              [string] $Name
+          )
+
+          $key = $registryBaseKey.OpenSubKey($Subkey, $false)
+          if ($null -eq $key) {
+              return $null
+          }
+          try {
+              return $key.GetValue(
+                  $Name,
+                  $null,
+                  [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames
+              )
+          }
+          finally {
+              $key.Dispose()
+          }
+      }
+
+      function Set-RegistryStringValue {
+          param(
+              [Parameter(Mandatory = $true)]
+              [string] $Subkey,
+
+              [Parameter(Mandatory = $true)]
+              [string] $Name,
+
+              [Parameter(Mandatory = $true)]
+              [string] $Value
+          )
+
+          $key = $registryBaseKey.CreateSubKey($Subkey, $true)
+          try {
+              $key.SetValue(
+                  $Name,
+                  $Value,
+                  [Microsoft.Win32.RegistryValueKind]::String
+              )
+          }
+          finally {
+              $key.Dispose()
+          }
+      }
+
+      function Remove-RegistryValue {
+          param(
+              [Parameter(Mandatory = $true)]
+              [string] $Subkey,
+
+              [Parameter(Mandatory = $true)]
+              [string] $Name
+          )
+
+          $key = $registryBaseKey.OpenSubKey($Subkey, $true)
+          if ($null -eq $key) {
+              return
+          }
+          try {
+              $key.DeleteValue($Name, $false)
+          }
+          finally {
+              $key.Dispose()
+          }
+      }
+
+      $previousIds = @()
+      if (Test-RegistrySubkey -Subkey $stateSubkey) {
+          $ownedJson = Get-RegistryValueOrNull -Subkey $stateSubkey -Name OwnedRuleIds
+          if ($ownedJson) {
+              $parsedPreviousIds = ConvertFrom-Json -InputObject $ownedJson
+              foreach ($parsedPreviousId in $parsedPreviousIds) {
+                  $previousIds += $parsedPreviousId
+              }
+          }
+      }
+
+      $desiredRules = @()
+      if ($Mode -ne 'native') {
+          $parsedRules = ConvertFrom-Json -InputObject $DesiredRulesJson
+          foreach ($parsedRule in $parsedRules) {
+              $desiredRules += $parsedRule
+          }
+      }
+      $desiredIds = @(
+          $desiredRules | ForEach-Object {
+              ([string] $_.id).ToLowerInvariant()
+          }
+      )
+
+      foreach ($id in $previousIds) {
+          $normalizedId = ([string] $id).ToLowerInvariant()
+          if ($normalizedId -notin $desiredIds) {
+              $currentValue = Get-RegistryValueOrNull -Subkey $policySubkey -Name $normalizedId
+              if ($null -ne $currentValue) {
+                  Remove-RegistryValue -Subkey $policySubkey -Name $normalizedId
+                  $changed = $true
+                  $changeReasons.Add("removed-policy:$normalizedId")
+              }
+          }
+      }
+
+      foreach ($rule in $desiredRules) {
+          $id = ([string] $rule.id).ToLowerInvariant()
+          $desiredAction = switch ($Mode) {
+              'source' { [string] $rule.source_action }
+              'audit'  { '2' }
+              'block'  { '1' }
+          }
+          $currentValue = Get-RegistryValueOrNull -Subkey $policySubkey -Name $id
+          if ([string] $currentValue -ne $desiredAction) {
+              Set-RegistryStringValue -Subkey $policySubkey -Name $id -Value $desiredAction
+              $changed = $true
+              $currentType = if ($null -eq $currentValue) {
+                  'null'
+              }
+              else {
+                  $currentValue.GetType().FullName
+              }
+              $changeReasons.Add(
+                  ('set-policy:{0}:current={1}:currentType={2}:desired={3}' -f
+                      $id, $currentValue, $currentType, $desiredAction)
+              )
+          }
+      }
+
+      if ($Mode -eq 'native') {
+          if (Test-RegistrySubkey -Subkey $stateSubkey) {
+              $registryBaseKey.DeleteSubKeyTree($stateSubkey, $false)
+              $changed = $true
+              $changeReasons.Add('removed-state-marker')
+          }
+      }
+      else {
+          $state = [ordered]@{
+              CatalogVersion = $CatalogVersion
+              Mode = $Mode
+              OwnedRuleIds = ($desiredIds | ConvertTo-Json -Compress)
+              Preset = $Preset
+          }
+          foreach ($entry in $state.GetEnumerator()) {
+              $entryName = [string] $entry.Key
+              $currentValue = Get-RegistryValueOrNull -Subkey $stateSubkey -Name $entryName
+              if ([string] $currentValue -ne [string] $entry.Value) {
+                  Set-RegistryStringValue `
+                      -Subkey $stateSubkey `
+                      -Name $entryName `
+                      -Value ([string] $entry.Value)
+                  $changed = $true
+                  $currentType = if ($null -eq $currentValue) {
+                      'null'
+                  }
+                  else {
+                      $currentValue.GetType().FullName
+                  }
+                  $changeReasons.Add(
+                      ('set-state:{0}:current={1}:currentType={2}:desired={3}' -f
+                          $entryName, $currentValue, $currentType, $entry.Value)
+                  )
+              }
+          }
+      }
+
+      $registryBaseKey.Dispose()
+      $Ansible.Changed = $changed
+      $Ansible.Result = [ordered]@{
+          catalog_version = $CatalogVersion
+          change_reasons = @($changeReasons)
+          mode = $Mode
+          preset = $Preset
+          rule_count = $desiredIds.Count
+      }
+  register: ludus_asr_presets_apply_result

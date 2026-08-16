@@ -1,0 +1,30 @@
+---
+- name: Require a Windows target
+  ansible.builtin.assert:
+    that:
+      - ansible_os_family == 'Windows'
+    fail_msg: ludus_asr_presets supports Windows targets only.
+
+- name: Validate preset selection
+  ansible.builtin.assert:
+    that:
+      - ludus_asr_presets_preset in ludus_asr_presets_catalog
+    fail_msg: >-
+      ludus_asr_presets_preset must be one of
+      {{ ludus_asr_presets_catalog.keys() | list | sort | join(', ') }}.
+
+- name: Validate mode selection
+  ansible.builtin.assert:
+    that:
+      - ludus_asr_presets_mode in ['source', 'audit', 'block', 'native']
+    fail_msg: >-
+      ludus_asr_presets_mode must be source, audit, block, or native.
+
+- name: Require Microsoft Defender Antivirus PowerShell support
+  ansible.windows.win_powershell:
+    script: |
+      if (-not (Get-Command -Name Get-MpPreference -ErrorAction SilentlyContinue)) {
+          throw 'Get-MpPreference is unavailable; Microsoft Defender Antivirus is required.'
+      }
+      $Ansible.Changed = $false
+  changed_when: false

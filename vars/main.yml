@@ -1,0 +1,202 @@
+---
+ludus_asr_presets_catalog_version: '2026-08-15'
+
+# source_action uses Microsoft ASR action codes: 1=Block, 2=Audit.
+ludus_asr_presets_catalog:
+  microsoft_basic:
+    display_name: Microsoft standard protection rules
+    source_name: Microsoft Defender ASR rules reference
+    source_version: '2026-07-02'
+    source_url: https://learn.microsoft.com/defender-endpoint/attack-surface-reduction-rules-reference
+    rules:
+      - id: 56a863a9-875e-4185-98a7-b882c64b5ce5
+        name: Block abuse of exploited vulnerable signed drivers
+        source_action: 1
+      - id: 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2
+        name: Block credential stealing from LSASS
+        source_action: 1
+      - id: e6db77e5-3df2-4cf1-b95a-636979351e5b
+        name: Block persistence through WMI event subscription
+        source_action: 1
+
+  windows_server_2022:
+    display_name: Windows Server 2022 Security Baseline
+    source_name: Windows Server 2022 Security Baseline
+    source_version: FINAL
+    source_sha256: 49590cc694626d171fc934fafea6494f13ecd3843086704b7a5b98355909b8e0
+    source_url: https://www.microsoft.com/download/details.aspx?id=55319
+    rules:
+      - id: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84
+        name: Block Office applications from injecting code
+        source_action: 1
+      - id: 3b576869-a4ec-4529-8536-b80a7769e899
+        name: Block Office applications from creating executable content
+        source_action: 1
+      - id: d4f940ab-401b-4efc-aadc-ad5f3c50688a
+        name: Block all Office applications from creating child processes
+        source_action: 1
+      - id: 92e97fa1-2edf-4476-bdd6-9dd0b4dddc7b
+        name: Block Win32 API calls from Office macros
+        source_action: 1
+      - id: 5beb7efe-fd9a-4556-801d-275e5ffc04cc
+        name: Block execution of potentially obfuscated scripts
+        source_action: 1
+      - id: d3e037e1-3eb8-44c8-a917-57927947596d
+        name: Block JavaScript or VBScript from launching downloaded executables
+        source_action: 1
+      - id: be9ba2d9-53ea-4cdc-84e5-9b1eeee46550
+        name: Block executable content from email client and webmail
+        source_action: 1
+      - id: 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2
+        name: Block credential stealing from LSASS
+        source_action: 1
+      - id: b2b3f03d-6a65-4f7b-a9c7-1c7ef74a9ba4
+        name: Block untrusted and unsigned processes that run from USB
+        source_action: 1
+      - id: 26190899-1602-49e8-8b27-eb1d0a1ce869
+        name: Block Office communication applications from creating child processes
+        source_action: 1
+      - id: 7674ba52-37eb-4a4f-a9a1-f0f9a1619a2c
+        name: Block Adobe Reader from creating child processes
+        source_action: 1
+      - id: c1db55ab-c21a-4637-bb3f-a12568109d35
+        name: Use advanced protection against ransomware
+        source_action: 1
+      - id: e6db77e5-3df2-4cf1-b95a-636979351e5b
+        name: Block persistence through WMI event subscription
+        source_action: 1
+
+  windows_server_2025:
+    display_name: Windows Server 2025 Security Baseline
+    source_name: Windows Server 2025 Security Baseline - 2602
+    source_version: '2602'
+    source_sha256: a66dffbe2622c3c4dd70e44a7f2080f362fb2d6f9208c50678671cbb046a286f
+    source_url: https://www.microsoft.com/download/details.aspx?id=55319
+    rules:
+      - id: 5beb7efe-fd9a-4556-801d-275e5ffc04cc
+        name: Block execution of potentially obfuscated scripts
+        source_action: 1
+      - id: d3e037e1-3eb8-44c8-a917-57927947596d
+        name: Block JavaScript or VBScript from launching downloaded executables
+        source_action: 1
+      - id: 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2
+        name: Block credential stealing from LSASS
+        source_action: 1
+      - id: b2b3f03d-6a65-4f7b-a9c7-1c7ef74a9ba4
+        name: Block untrusted and unsigned processes that run from USB
+        source_action: 1
+      - id: c1db55ab-c21a-4637-bb3f-a12568109d35
+        name: Use advanced protection against ransomware
+        source_action: 1
+      - id: e6db77e5-3df2-4cf1-b95a-636979351e5b
+        name: Block persistence through WMI event subscription
+        source_action: 1
+      - id: 56a863a9-875e-4185-98a7-b882c64b5ce5
+        name: Block abuse of exploited vulnerable signed drivers
+        source_action: 1
+      - id: a8f5898e-1dc8-49a9-9878-85004b8a61e6
+        name: Block Webshell creation for Servers
+        source_action: 1
+
+  windows_11_24h2:
+    display_name: Windows 11 v24H2 Security Baseline
+    source_name: Windows 11 v24H2 Security Baseline
+    source_version: v24H2
+    source_sha256: b75439a231c64edaccaad16a16268d199f56ce78273104e117d893f82cf174a5
+    source_url: https://www.microsoft.com/download/details.aspx?id=55319
+    rules:
+      - id: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84
+        name: Block Office applications from injecting code
+        source_action: 1
+      - id: 3b576869-a4ec-4529-8536-b80a7769e899
+        name: Block Office applications from creating executable content
+        source_action: 1
+      - id: d4f940ab-401b-4efc-aadc-ad5f3c50688a
+        name: Block all Office applications from creating child processes
+        source_action: 1
+      - id: 92e97fa1-2edf-4476-bdd6-9dd0b4dddc7b
+        name: Block Win32 API calls from Office macros
+        source_action: 1
+      - id: 5beb7efe-fd9a-4556-801d-275e5ffc04cc
+        name: Block execution of potentially obfuscated scripts
+        source_action: 1
+      - id: d3e037e1-3eb8-44c8-a917-57927947596d
+        name: Block JavaScript or VBScript from launching downloaded executables
+        source_action: 1
+      - id: be9ba2d9-53ea-4cdc-84e5-9b1eeee46550
+        name: Block executable content from email client and webmail
+        source_action: 1
+      - id: 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2
+        name: Block credential stealing from LSASS
+        source_action: 1
+      - id: b2b3f03d-6a65-4f7b-a9c7-1c7ef74a9ba4
+        name: Block untrusted and unsigned processes that run from USB
+        source_action: 1
+      - id: 26190899-1602-49e8-8b27-eb1d0a1ce869
+        name: Block Office communication applications from creating child processes
+        source_action: 1
+      - id: 7674ba52-37eb-4a4f-a9a1-f0f9a1619a2c
+        name: Block Adobe Reader from creating child processes
+        source_action: 1
+      - id: c1db55ab-c21a-4637-bb3f-a12568109d35
+        name: Use advanced protection against ransomware
+        source_action: 1
+      - id: e6db77e5-3df2-4cf1-b95a-636979351e5b
+        name: Block persistence through WMI event subscription
+        source_action: 1
+      - id: 56a863a9-875e-4185-98a7-b882c64b5ce5
+        name: Block abuse of exploited vulnerable signed drivers
+        source_action: 1
+
+  windows_11_25h2:
+    display_name: Windows 11 v25H2 Security Baseline
+    source_name: Windows 11 v25H2 Security Baseline
+    source_version: v25H2
+    source_sha256: 3517a53030a3e437c9fe00c04274d80965d3527a8eb0514520cba75023c376f7
+    source_url: https://www.microsoft.com/download/details.aspx?id=55319
+    rules:
+      - id: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84
+        name: Block Office applications from injecting code
+        source_action: 1
+      - id: 3b576869-a4ec-4529-8536-b80a7769e899
+        name: Block Office applications from creating executable content
+        source_action: 1
+      - id: d4f940ab-401b-4efc-aadc-ad5f3c50688a
+        name: Block all Office applications from creating child processes
+        source_action: 1
+      - id: 92e97fa1-2edf-4476-bdd6-9dd0b4dddc7b
+        name: Block Win32 API calls from Office macros
+        source_action: 1
+      - id: 5beb7efe-fd9a-4556-801d-275e5ffc04cc
+        name: Block execution of potentially obfuscated scripts
+        source_action: 1
+      - id: d3e037e1-3eb8-44c8-a917-57927947596d
+        name: Block JavaScript or VBScript from launching downloaded executables
+        source_action: 1
+      - id: be9ba2d9-53ea-4cdc-84e5-9b1eeee46550
+        name: Block executable content from email client and webmail
+        source_action: 1
+      - id: 9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2
+        name: Block credential stealing from LSASS
+        source_action: 1
+      - id: b2b3f03d-6a65-4f7b-a9c7-1c7ef74a9ba4
+        name: Block untrusted and unsigned processes that run from USB
+        source_action: 1
+      - id: 26190899-1602-49e8-8b27-eb1d0a1ce869
+        name: Block Office communication applications from creating child processes
+        source_action: 1
+      - id: 7674ba52-37eb-4a4f-a9a1-f0f9a1619a2c
+        name: Block Adobe Reader from creating child processes
+        source_action: 1
+      - id: c1db55ab-c21a-4637-bb3f-a12568109d35
+        name: Use advanced protection against ransomware
+        source_action: 1
+      - id: e6db77e5-3df2-4cf1-b95a-636979351e5b
+        name: Block persistence through WMI event subscription
+        source_action: 1
+      - id: 56a863a9-875e-4185-98a7-b882c64b5ce5
+        name: Block abuse of exploited vulnerable signed drivers
+        source_action: 1
+      - id: d1e49aac-8f56-4280-b9ba-993a6d77406c
+        name: Block process creations originating from PSExec and WMI commands
+        source_action: 2

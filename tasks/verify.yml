@@ -1,0 +1,124 @@
+---
+- name: Verify role-owned ASR policy and effective Defender state
+  ansible.windows.win_powershell:
+    parameters:
+      DesiredRulesJson: "{{ ludus_asr_presets_selected.rules | to_json }}"
+      Mode: "{{ ludus_asr_presets_mode }}"
+    script: |
+      [CmdletBinding()]
+      param(
+          [Parameter(Mandatory = $true)]
+          [string] $DesiredRulesJson,
+
+          [Parameter(Mandatory = $true)]
+          [ValidateSet('source', 'audit', 'block', 'native')]
+          [string] $Mode
+      )
+
+      $ErrorActionPreference = 'Stop'
+      $policySubkey = 'SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules'
+      $stateSubkey = 'SOFTWARE\Ludus\Roles\ludus_asr_presets'
+      $registryBaseKey = [Microsoft.Win32.RegistryKey]::OpenBaseKey(
+          [Microsoft.Win32.RegistryHive]::LocalMachine,
+          [Microsoft.Win32.RegistryView]::Registry64
+      )
+
+      function Test-RegistrySubkey {
+          param(
+              [Parameter(Mandatory = $true)]
+              [string] $Subkey
+          )
+
+          $key = $registryBaseKey.OpenSubKey($Subkey, $false)
+          if ($null -eq $key) {
+              return $false
+          }
+          $key.Dispose()
+          return $true
+      }
+
+      function Get-RegistryValueOrNull {
+          param(
+              [Parameter(Mandatory = $true)]
+              [string] $Subkey,
+
+              [Parameter(Mandatory = $true)]
+              [string] $Name
+          )
+
+          $key = $registryBaseKey.OpenSubKey($Subkey, $false)
+          if ($null -eq $key) {
+              return $null
+          }
+          try {
+              return $key.GetValue(
+                  $Name,
+                  $null,
+                  [Microsoft.Win32.RegistryValueOptions]::DoNotExpandEnvironmentNames
+              )
+          }
+          finally {
+              $key.Dispose()
+          }
+      }
+
+      if ($Mode -eq 'native') {
+          if (Test-RegistrySubkey -Subkey $stateSubkey) {
+              throw 'The role ownership marker still exists after native cleanup.'
+          }
+          $registryBaseKey.Dispose()
+          $Ansible.Changed = $false
+          $Ansible.Result = @{ mode = $Mode; verified_rule_count = 0 }
+          return
+      }
+
+      $desiredRules = @()
+      $parsedRules = ConvertFrom-Json -InputObject $DesiredRulesJson
+      foreach ($parsedRule in $parsedRules) {
+          $desiredRules += $parsedRule
+      }
+      $expected = @{}
+      foreach ($rule in $desiredRules) {
+          $id = ([string] $rule.id).ToLowerInvariant()
+          $expected[$id] = switch ($Mode) {
+              'source' { [int] $rule.source_action }
+              'audit'  { 2 }
+              'block'  { 1 }
+          }
+          $policyValue = Get-RegistryValueOrNull -Subkey $policySubkey -Name $id
+          if ([int] $policyValue -ne $expected[$id]) {
+              throw "ASR policy value $id is '$policyValue'; expected '$($expected[$id])'."
+          }
+      }
+
+      $effective = @{}
+      for ($attempt = 1; $attempt -le 5; $attempt++) {
+          $preference = Get-MpPreference
+          $effective = @{}
+          for ($index = 0; $index -lt $preference.AttackSurfaceReductionRules_Ids.Count; $index++) {
+              $effective[$preference.AttackSurfaceReductionRules_Ids[$index].ToString().ToLowerInvariant()] =
+                  [int] $preference.AttackSurfaceReductionRules_Actions[$index]
+          }
+          $mismatches = @($expected.Keys | Where-Object {
+              (-not $effective.ContainsKey($_)) -or ($effective[$_] -ne $expected[$_])
+          })
+          if ($mismatches.Count -eq 0) {
+              break
+          }
+          if ($attempt -lt 5) {
+              Start-Sleep -Seconds 2
+          }
+      }
+
+      if ($mismatches.Count -gt 0) {
+          throw "Effective Defender ASR state does not match policy for: $($mismatches -join ', ')."
+      }
+
+      $registryBaseKey.Dispose()
+      $Ansible.Changed = $false
+      $Ansible.Result = [ordered]@{
+          mode = $Mode
+          verified_rule_count = $expected.Count
+      }
+  changed_when: false
+  register: ludus_asr_presets_verify_result

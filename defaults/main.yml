@@ -1,0 +1,9 @@
+---
+# Select one versioned Microsoft-derived rule set.
+ludus_asr_presets_preset: microsoft_basic
+
+# source: preserve each rule action from the cited source
+# audit:  force every selected rule to Audit
+# block:  force every selected rule to Block
+# native: remove only policy values previously owned by this role
+ludus_asr_presets_mode: audit
