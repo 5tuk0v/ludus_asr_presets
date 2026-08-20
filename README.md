@@ -71,6 +71,9 @@ ludus:
 - [Microsoft Security Compliance Toolkit](https://www.microsoft.com/download/details.aspx?id=55319)
 - [Ludus Ansible role template](https://github.com/badsectorlabs/ludus_ansible_role_template)
 
+See [Preset maintenance](MAINTENANCE.md) for the upstream review cadence,
+baseline update procedure, validation matrix, and release checklist.
+
 ## Credits
 
 This role builds upon [ZephrFish's Ludus Defender Lab](https://github.com/ZephrFish/ludus-defender-lab)
