@@ -78,6 +78,11 @@ and [curi0usJack's Ludus MDE/MDI Roles](https://github.com/curi0usJack/Ludus-MDE
 adding versioned ASR presets, additional rulesets and modes, explicit policy
 ownership tracking, and validation coverage.
 
+## AI disclosure
+
+This role was developed with assistance from OpenAI Codex using the Terra model.
+AI-assisted changes were reviewed and tested by the maintainer.
+
 ## License
 
 MIT
