@@ -72,7 +72,9 @@ ludus:
 - [Ludus Ansible role template](https://github.com/badsectorlabs/ludus_ansible_role_template)
 
 See [Preset maintenance](MAINTENANCE.md) for the upstream review cadence,
-baseline update procedure, validation matrix, and release checklist.
+agent-oriented comparison workflow, baseline update procedure, validation
+matrix, and release checklist. Normal role execution is offline; Microsoft
+packages are used only during explicit catalog maintenance.
 
 ## Credits
 
@@ -83,8 +85,8 @@ ownership tracking, and validation coverage.
 
 ## AI disclosure
 
-This role was developed with assistance from OpenAI Codex using the Terra model.
-AI-assisted changes were reviewed and tested by the maintainer.
+This role was developed with assistance from OpenAI Codex. Release changes are
+reviewed and tested before publication.
 
 ## License
 

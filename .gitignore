@@ -2,6 +2,10 @@
 .ansible
 *.retry
 
+### Python ###
+__pycache__/
+*.py[cod]
+
 ### macOS ###
 # General
 .DS_Store

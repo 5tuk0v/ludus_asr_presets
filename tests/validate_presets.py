@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import re
+from datetime import date
 from pathlib import Path
 
 import yaml
@@ -11,6 +12,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 GUID = re.compile(r"^[0-9a-f]{8}(?:-[0-9a-f]{4}){3}-[0-9a-f]{12}$")
+SHA256 = re.compile(r"^[0-9a-f]{64}$")
 EXPECTED = {
     "microsoft_basic": (3, {}),
     "windows_server_2022": (13, {}),
@@ -26,12 +28,31 @@ def main() -> None:
     assert set(catalog) == set(EXPECTED), "unexpected preset names"
 
     names_by_guid: dict[str, str] = {}
+    source_files: set[str] = set()
     for preset_name, preset in catalog.items():
         expected_count, action_exceptions = EXPECTED[preset_name]
         rules = preset["rules"]
         assert len(rules) == expected_count, f"{preset_name}: unexpected rule count"
         ids = [rule["id"] for rule in rules]
         assert len(ids) == len(set(ids)), f"{preset_name}: duplicate GUID"
+
+        if preset_name != "microsoft_basic":
+            source_file = preset.get("source_file")
+            assert isinstance(source_file, str) and source_file.endswith(".zip"), (
+                f"{preset_name}: missing source_file"
+            )
+            assert source_file not in source_files, f"duplicate source_file {source_file}"
+            source_files.add(source_file)
+            assert SHA256.fullmatch(preset.get("source_sha256", "")), (
+                f"{preset_name}: invalid source_sha256"
+            )
+            if "source_rules_sha256" in preset:
+                assert SHA256.fullmatch(preset["source_rules_sha256"]), (
+                    f"{preset_name}: invalid source_rules_sha256"
+                )
+                assert date.fromisoformat(preset["source_retrieved_at"]), (
+                    f"{preset_name}: invalid source_retrieved_at"
+                )
 
         for rule in rules:
             rule_id = rule["id"]

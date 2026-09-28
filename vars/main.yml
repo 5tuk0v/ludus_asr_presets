@@ -1,12 +1,12 @@
 ---
-ludus_asr_presets_catalog_version: '2026-08-15'
+ludus_asr_presets_catalog_version: '2026-09-28'
 
 # source_action uses Microsoft ASR action codes: 1=Block, 2=Audit.
 ludus_asr_presets_catalog:
   microsoft_basic:
     display_name: Microsoft standard protection rules
     source_name: Microsoft Defender ASR rules reference
-    source_version: '2026-07-02'
+    source_version: '2026-09-09'
     source_url: https://learn.microsoft.com/defender-endpoint/attack-surface-reduction-rules-reference
     rules:
       - id: 56a863a9-875e-4185-98a7-b882c64b5ce5
@@ -23,7 +23,10 @@ ludus_asr_presets_catalog:
     display_name: Windows Server 2022 Security Baseline
     source_name: Windows Server 2022 Security Baseline
     source_version: FINAL
+    source_file: Windows Server 2022 Security Baseline.zip
+    source_retrieved_at: '2026-09-28'
     source_sha256: 49590cc694626d171fc934fafea6494f13ecd3843086704b7a5b98355909b8e0
+    source_rules_sha256: 5a407ff07c1df2cffd887bcdae01442c5e4847f5f96de974a027ab30069a979a
     source_url: https://www.microsoft.com/download/details.aspx?id=55319
     rules:
       - id: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84
@@ -70,7 +73,10 @@ ludus_asr_presets_catalog:
     display_name: Windows Server 2025 Security Baseline
     source_name: Windows Server 2025 Security Baseline - 2602
     source_version: '2602'
+    source_file: Windows Server 2025 Security Baseline - 2602.zip
+    source_retrieved_at: '2026-09-28'
     source_sha256: a66dffbe2622c3c4dd70e44a7f2080f362fb2d6f9208c50678671cbb046a286f
+    source_rules_sha256: 22db2158846ad84e54b6f0f8cc433804be180a5d93408cf9298f80116b06d3b1
     source_url: https://www.microsoft.com/download/details.aspx?id=55319
     rules:
       - id: 5beb7efe-fd9a-4556-801d-275e5ffc04cc
@@ -102,7 +108,10 @@ ludus_asr_presets_catalog:
     display_name: Windows 11 v24H2 Security Baseline
     source_name: Windows 11 v24H2 Security Baseline
     source_version: v24H2
+    source_file: Windows 11 v24H2 Security Baseline.zip
+    source_retrieved_at: '2026-09-28'
     source_sha256: b75439a231c64edaccaad16a16268d199f56ce78273104e117d893f82cf174a5
+    source_rules_sha256: 6cf9bb3a5f823b15e947218b49816b47d8ace1319f21d6715fc6a22d0ac55d63
     source_url: https://www.microsoft.com/download/details.aspx?id=55319
     rules:
       - id: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84
@@ -152,7 +161,10 @@ ludus_asr_presets_catalog:
     display_name: Windows 11 v25H2 Security Baseline
     source_name: Windows 11 v25H2 Security Baseline
     source_version: v25H2
+    source_file: Windows 11 v25H2 Security Baseline.zip
+    source_retrieved_at: '2026-09-28'
     source_sha256: 3517a53030a3e437c9fe00c04274d80965d3527a8eb0514520cba75023c376f7
+    source_rules_sha256: c5867f9e5ae50dae4c44373bbaa063da8b4ca0bb865ea9ece90a30ea2fff9a7f
     source_url: https://www.microsoft.com/download/details.aspx?id=55319
     rules:
       - id: 75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84
